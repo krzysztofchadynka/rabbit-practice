@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3"
 
 services:
   nginx:
@@ -18,6 +18,8 @@ services:
     working_dir: /laravel-aws
     links:
       - rabbitmq
+      - db
+      - localstack
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -27,3 +29,28 @@ services:
     volumes:
       - ./.docker/rabbitmq/data:/var/lib/rabbitmq
       - ./.docker/rabbitmq/log:/var/log/rabbitmq
+
+  db:
+    image: mysql:latest
+    env_file:
+      - ./.env.template
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+
+  localstack:
+    image: localstack/localstack:latest
+    environment:
+      - DEBUG=1
+      - LOCALSTACK_HOSTNAME=localhost
+      - AWS_DEFAULT_REGION=us-east-1
+      - EDGE_PORT=4566
+      - SERVICES=lambda,s3
+      - EAGER_SERVICE_LOADING=1
+    ports:
+      - "4566-4583:4566-4583"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./.docker/localstack/data:/tmp/localstack

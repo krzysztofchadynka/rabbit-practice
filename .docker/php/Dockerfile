@@ -8,6 +8,6 @@ RUN apt-get update -y
 RUN apt-get upgrade -y
 RUN apt-get install -y git
 
-RUN docker-php-ext-install sockets
+RUN docker-php-ext-install sockets pdo pdo_mysql mysqli
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
     install-php-extensions amqp
